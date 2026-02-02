@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- ENUMS ---
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum MovieStatus {
+  NOW_SHOWING
+  COMING_SOON
+  ENDED
+}
+
+enum SeatType {
+  NORMAL
+  VIP
+  COUPLE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REFUNDED
+}
+
+enum TicketStatus {
+  ACTIVE
+  USED
+  CANCELLED
+}
+
+// --- MODELS ---
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  password      String
+  fullName      String?   @map("full_name")
+  phone         String?
+  role          Role      @default(CUSTOMER)
+  loyaltyPoints Int       @default(0) @map("loyalty_points")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  
+  bookings      Booking[]
+
+  @@map("users")
+}
+
+model Movie {
+  id          Int         @id @default(autoincrement())
+  title       String
+  description String?     @db.Text
+  posterUrl   String?     @map("poster_url")
+  duration    Int         // Số phút
+  releaseDate DateTime    @map("release_date")
+  rating      Float       @default(0.0)
+  status      MovieStatus @default(COMING_SOON)
+  
+  showtimes   Showtime[]
+
+  @@map("movies")
+}
+
+model Theater {
+  id          Int          @id @default(autoincrement())
+  name        String
+  location    String
+  auditoriums Auditorium[]
+
+  @@map("theaters")
+}
+
+model Auditorium {
+  id        Int        @id @default(autoincrement())
+  name      String
+  theaterId Int        @map("theater_id")
+  theater   Theater    @relation(fields: [theaterId], references: [id])
+  
+  seats     Seat[]
+  showtimes Showtime[]
+
+  @@map("auditoriums")
+}
+
+model Seat {
+  id           Int        @id @default(autoincrement())
+  row          String     // A, B, C
+  number       Int        // 1, 2, 3
+  type         SeatType   @default(NORMAL)
+  auditoriumId Int        @map("auditorium_id")
+  auditorium   Auditorium @relation(fields: [auditoriumId], references: [id])
+  
+  tickets      Ticket[]
+
+  @@map("seats")
+}
+
+model Showtime {
+  id           Int        @id @default(autoincrement())
+  startTime    DateTime   @map("start_time")
+  endTime      DateTime   @map("end_time")
+  basePrice    Float      @map("base_price") // Giá gốc chưa tính ghế VIP
+  
+  movieId      Int        @map("movie_id")
+  movie        Movie      @relation(fields: [movieId], references: [id])
+  
+  auditoriumId Int        @map("auditorium_id")
+  auditorium   Auditorium @relation(fields: [auditoriumId], references: [id])
+  
+  bookings     Booking[]
+
+  @@map("showtimes")
+}
+
+model Booking {
+  id              Int           @id @default(autoincrement())
+  totalAmount     Float         @map("total_amount")
+  status          BookingStatus @default(PENDING)
+  paymentIntentId String?       @map("payment_intent_id") // Mã giao dịch VNPay/Stripe
+  createdAt       DateTime      @default(now()) @map("created_at")
+  
+  userId          Int           @map("user_id")
+  user            User          @relation(fields: [userId], references: [id])
+  
+  showtimeId      Int           @map("showtime_id")
+  showtime        Showtime      @relation(fields: [showtimeId], references: [id])
+  
+  tickets         Ticket[]
+
+  @@map("bookings")
+}
+
+model Ticket {
+  id        Int          @id @default(autoincrement())
+  price     Float
+  qrCode    String       @unique @map("qr_code") // Mã vé unique
+  status    TicketStatus @default(ACTIVE)
+  
+  bookingId Int          @map("booking_id")
+  booking   Booking      @relation(fields: [bookingId], references: [id])
+  
+  seatId    Int          @map("seat_id")
+  seat      Seat         @relation(fields: [seatId], references: [id])
+
+  @@map("tickets")
+}
