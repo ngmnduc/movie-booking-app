@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyJwt } from '../utils/jwt.js';
+import { verifyJwt } from '../utils/jwt';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
