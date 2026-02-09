@@ -1,6 +1,6 @@
 import { PrismaClient, Role } from '@prisma/client';
 import { hashedPassword, comparePassword } from '../utils/password';
-import { signToken } from 'src/utils/jwt';
+import { signToken } from '../utils/jwt';
 import { email } from 'zod';
 //import { ApiError } from '../utils/api-error';
 
