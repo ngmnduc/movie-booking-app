@@ -56,17 +56,22 @@ model User {
 }
 
 model Movie {
-  id          Int         @id @default(autoincrement())
-  title       String
-  description String?     @db.Text
-  posterUrl   String?     @map("poster_url")
-  duration    Int         // Số phút
-  releaseDate DateTime    @map("release_date")
-  rating      Float       @default(0.0)
-  status      MovieStatus @default(COMING_SOON)
-  
-  showtimes   Showtime[]
+  id           Int      @id @default(autoincrement())
+  tmdbId       Int      @unique @map("tmdb_id") 
+  title        String
+  originalTitle String? @map("original_title")
+  description  String?  @db.Text
+  posterPath   String?  @map("poster_path")     
+  backdropPath String?  @map("backdrop_path")   
+  rating       Float    @default(0.0)
+  duration     Int      
+  releaseDate  DateTime @map("release_date")
+  genres       Json?    
+  cast         Json?    
+  status       String   @default("NOW_SHOWING") // NOW_SHOWING, COMING_SOON, ENDED
 
+  showtimes    Showtime[]
+  
   @@map("movies")
 }
 
