@@ -88,3 +88,4 @@ export const getMovieDetails = async ( tmdbId: number) => {
         throw new Error('TMDB_DETAIL_FAILED');
     }
 }
+
