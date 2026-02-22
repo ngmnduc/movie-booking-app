@@ -70,3 +70,48 @@ export const getShowtimesByMovie = async (movieId: number) => {
     orderBy: { startTime: 'asc' }
   });
 };
+
+export const getAdminShowtimes = async (dateString: string) => {
+  // Lấy từ 00:00:00 đến 23:59:59 của ngày đó
+  const startOfDay = new Date(dateString);
+  startOfDay.setHours(0, 0, 0, 0);
+  
+  const endOfDay = new Date(dateString);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return await prisma.showtime.findMany({
+    where: {
+      startTime: {
+        gte: startOfDay,
+        lte: endOfDay
+      }
+    },
+    include: {
+      movie: { select: { title: true, duration: true } },
+      auditorium: { select: { name: true } },
+      _count: { select: { bookings: true } } // Đếm số đơn đặt vé để UI biết suất này có khách ko
+    },
+    orderBy: { startTime: 'asc' }
+  });
+};
+
+export const deleteShowtime = async (id: number) => {
+  const showtime = await prisma.showtime.findUnique({
+    where: { id },
+    include: {
+      _count: { select: { bookings: true } }
+    }
+  });
+
+  if (!showtime) {
+    throw new Error('SHOWTIME_NOT_FOUND');
+  }
+
+  if (showtime._count.bookings > 0) {
+    throw new Error('HAS_BOOKINGS');
+  }
+
+  return await prisma.showtime.delete({
+    where: { id }
+  });
+};
