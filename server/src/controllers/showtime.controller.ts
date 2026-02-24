@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as showtimeService from '../services/showtime.service';
+import redisClient from '../config/redis';
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -44,6 +45,36 @@ export const deleteShowtime = async (req: Request, res: Response) => {
     }
     if (error.message === 'HAS_BOOKINGS') {
       return res.status(409).json({ success: false, message: 'Cannot delete: Tickets have already been booked for this showtime' });
+    }
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+export const getPublicShowtimes = async (req: Request, res: Response) => {
+  try {
+    const movieId = Number(req.query.movieId);
+    const date = String(req.query.date);
+
+    if (!movieId || !date) {
+      return res.status(400).json({ success: false, message: 'Missing movieId or date' });
+    }
+
+    const showtimes = await showtimeService.getPublicShowtimes(movieId, date);
+    return res.status(200).json({ success: true, data: showtimes });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+export const getSeatMap = async (req: Request, res: Response) => {
+  try {
+    const showtimeId = Number(req.params.id);
+    const seatMap = await showtimeService.getSeatMap(showtimeId); 
+  } catch (error: any) {
+    if (error.message === 'SHOWTIME_NOT_FOUND') {
+      return res.status(404).json({ success: false, message: 'Showtime not found' });
     }
     console.error(error);
     return res.status(500).json({ success: false, message: 'Internal server error' });

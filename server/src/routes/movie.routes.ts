@@ -10,4 +10,6 @@ router.get('/tmdb/search', verifyToken, requireAdmin, movieController.searchTmdb
 // import phim
 router.post('/', verifyToken, requireAdmin, movieController.createFromTmdb);
 router.get('/admin', verifyToken, requireAdmin, movieController.getAdminMovies);
+
+router.get('/:id/public', movieController.getPublicMovieDetail);
 export default router;

@@ -115,3 +115,32 @@ export const deleteShowtime = async (id: number) => {
     where: { id }
   });
 };
+
+export const getPublicShowtimes = async (movieId: number, dateString: string) => {
+  const startOfDay = new Date(dateString);
+  startOfDay.setHours(0, 0, 0, 0);
+  
+  const endOfDay = new Date(dateString);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const now = new Date();
+  const queryStart = startOfDay < now ? now : startOfDay;
+
+  return await prisma.showtime.findMany({
+    where: {
+      movieId: movieId,
+      startTime: {
+        gte: queryStart,
+        lte: endOfDay
+      }
+    },
+    include: {
+      auditorium: { select: { name: true } }
+    },
+    orderBy: { startTime: 'asc' }
+  });
+};
+
+export function getSeatMap(showtimeId: number) {
+  throw new Error('Function not implemented.');
+}

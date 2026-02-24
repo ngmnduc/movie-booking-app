@@ -29,3 +29,13 @@ export const getAdminMovies = async (page: number, limit: number, search: string
     }
   };
 };
+
+export const getPublicMovieDetail = async (id:number) =>{
+  const movie = await prisma.movie.findUnique({
+    where: {id}
+  });
+  if (!movie){
+    throw new Error('MOVIE_NOT_FOUND')
+  };
+  return movie;
+}

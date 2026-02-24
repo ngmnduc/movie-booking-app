@@ -88,3 +88,19 @@ export const getAdminMovies = async (req: Request, res: Response) => {
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+
+export const getPublicMovieDetail = async(req: Request, res: Response) =>{
+  try{
+    const id = Number(req.params.id);
+    const movie = await movieService.getPublicMovieDetail(id);
+    return res.status(200).json({ success: true, data: movie });
+
+  }catch(error:any){
+    if (error.message === 'MOVIE_NOT_FOUND') {
+      return res.status(404).json({ success: false, message: 'Movie not found' });
+    }
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+
+  }
+};
