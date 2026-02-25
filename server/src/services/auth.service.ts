@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 export const registerUser = async (data: any) => {
     const {email, password, fullName, phone } = data;
 
-    const existingUser = await prisma.user.findUnique({where: email});
+    const existingUser = await prisma.user.findUnique({where: {email}});  
     if (existingUser){
         throw new Error("EMAIL_EXISTS")
     }
