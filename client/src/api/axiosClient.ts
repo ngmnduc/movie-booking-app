@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
 const axiosClient = axios.create({
-  baseURL: 'http://localhost:3000/api', // Đổi theo port backend của bạn
+  baseURL: 'http://localhost:5000/api',
   headers: { 'Content-Type': 'application/json' },
 });
 

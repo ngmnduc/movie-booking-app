@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
 import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../pages/admin/Dashboard";
 import AddShow from "../pages/admin/AddShow";
@@ -14,8 +15,8 @@ const AppRouter = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       
-      {/* Khu vực Admin được bảo vệ */}
       <Route path="/admin" element={
         <ProtectedRoute>
            <AdminLayout />
