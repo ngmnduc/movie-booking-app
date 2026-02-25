@@ -69,7 +69,7 @@ model Movie {
   genres       Json?    
   cast         Json?    
   status       String   @default("NOW_SHOWING") // NOW_SHOWING, COMING_SOON, ENDED
-
+  createdAt    DateTime @default(now()) @map("created_at")
   showtimes    Showtime[]
   
   @@map("movies")
@@ -89,7 +89,7 @@ model Auditorium {
   name      String
   theaterId Int        @map("theater_id")
   theater   Theater    @relation(fields: [theaterId], references: [id])
-  
+  status    String     @default("ACTIVE")
   seats     Seat[]
   showtimes Showtime[]
 

@@ -3,7 +3,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import * as tmdbService from '../services/tmdb.service';
 import { getOrSetCache } from '../config/redis';
 import { success } from "zod";
-
+import * as movieService from '../services/movie.service';
 const prisma = new PrismaClient();
 
 export const searchTmdb = async(req: Request, res:Response) => {
@@ -72,5 +72,35 @@ export const getLocalMovies = async (req: Request, res: Response) => {
     res.json({ success: true, data: movies });
   } catch (error) {
     res.status(500).json({ success: false, message: "Fetch failed" });
+  }
+};
+
+export const getAdminMovies = async (req: Request, res: Response) => {
+  try {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.max(1, Number(req.query.limit) || 10);
+    const search = req.query.search ? String(req.query.search) : '';
+
+    const result = await movieService.getAdminMovies(page, limit, search);
+    return res.status(200).json({ success: true, ...result });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+export const getPublicMovieDetail = async(req: Request, res: Response) =>{
+  try{
+    const id = Number(req.params.id);
+    const movie = await movieService.getPublicMovieDetail(id);
+    return res.status(200).json({ success: true, data: movie });
+
+  }catch(error:any){
+    if (error.message === 'MOVIE_NOT_FOUND') {
+      return res.status(404).json({ success: false, message: 'Movie not found' });
+    }
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+
   }
 };
